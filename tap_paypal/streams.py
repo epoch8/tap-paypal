@@ -52,7 +52,9 @@ class InvoicesStream(PaypalStream):
 
     def parse_response(self, response: requests.Response) -> Iterable[dict]:
         """Parse the response and return an iterator of result records."""
-        yield from extract_jsonpath(self.records_jsonpath, input=response.json())
+        records = extract_jsonpath(self.records_jsonpath, input=response.json())
+        filtered_record = [record for record in records if record['status'] != "DRAFT"]
+        yield from filtered_record
 
     def post_process(self, row: dict, context: Optional[dict]) -> dict:
         new_row  = {"id": row["id"], "create_time": row["detail"]["metadata"]["create_time"]}
