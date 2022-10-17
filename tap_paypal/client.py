@@ -19,9 +19,8 @@ class PaypalStream(RESTStream):
     """paypal stream class."""
 
     url_base = "https://api-m.paypal.com"
-
     records_jsonpath = "$.items.[*]"  # Or override `parse_response`.
-    next_page_token_jsonpath = "$.next_page"  # Or override `get_next_page_token`.
+    page_size = 100
 
     @property
     @cached
@@ -41,18 +40,17 @@ class PaypalStream(RESTStream):
         self, response: requests.Response, previous_token: Optional[Any]
     ) -> Optional[Any]:
         """Return a token for identifying next page or None if no more pages."""
-        # TODO: If pagination is required, return a token which can be used to get the
-        #       next page. If this is the final page, return "None" to end the
-        #       pagination loop.
-        if self.next_page_token_jsonpath:
-            all_matches = extract_jsonpath(
-                self.next_page_token_jsonpath, response.json()
-            )
-            first_match = next(iter(all_matches), None)
-            next_page_token = first_match
-        else:
-            next_page_token = response.headers.get("X-Next-Page", None)
+        response = response.json()
 
+        if "items" not in response:
+                return None
+        if len(response["items"]) < self.page_size:
+            return None
+
+        if not previous_token:
+            previous_token = 1
+
+        next_page_token = previous_token + 1
         return next_page_token
 
     def get_url_params(
@@ -60,6 +58,7 @@ class PaypalStream(RESTStream):
     ) -> Dict[str, Any]:
         """Return a dictionary of values to be used in URL parameterization."""
         params: dict = {}
+        params["page_size"] = self.page_size
         if next_page_token:
             params["page"] = next_page_token
         if self.replication_key:
