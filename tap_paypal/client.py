@@ -9,32 +9,25 @@ from memoization import cached
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.streams import RESTStream
 
-from tap_paypal.auth import paypalAuthenticator
+from tap_paypal.auth import PaypalAuthenticator
 
 
 SCHEMAS_DIR = Path(__file__).parent / Path("./schemas")
 
 
-class paypalStream(RESTStream):
+class PaypalStream(RESTStream):
     """paypal stream class."""
 
-    # TODO: Set the API's base URL here:
-    url_base = "https://api.mysample.com"
-
-    # OR use a dynamic url_base:
-    # @property
-    # def url_base(self) -> str:
-    #     """Return the API URL root, configurable via tap settings."""
-    #     return self.config["api_url"]
+    url_base = "https://api-m.paypal.com"
 
     records_jsonpath = "$[*]"  # Or override `parse_response`.
     next_page_token_jsonpath = "$.next_page"  # Or override `get_next_page_token`.
 
     @property
     @cached
-    def authenticator(self) -> paypalAuthenticator:
-        """Return a new authenticator object."""
-        return paypalAuthenticator.create_for_stream(self)
+    def authenticator(self) -> PaypalAuthenticator:
+        auth_endpoint = self.url_base + "/v1/oauth2/token"
+        return PaypalAuthenticator.create_for_stream(stream=self, auth_endpoint=auth_endpoint)
 
     @property
     def http_headers(self) -> dict:

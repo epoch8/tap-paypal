@@ -6,7 +6,7 @@ from singer_sdk import Tap, Stream
 from singer_sdk import typing as th  # JSON schema typing helpers
 # TODO: Import your custom stream types here:
 from tap_paypal.streams import (
-    paypalStream,
+    PaypalStream,
     UsersStream,
     GroupsStream,
 )
@@ -18,35 +18,24 @@ STREAM_TYPES = [
 ]
 
 
-class Tappaypal(Tap):
+class TapPaypal(Tap):
     """paypal tap class."""
     name = "tap-paypal"
 
     # TODO: Update this section with the actual config values you expect:
     config_jsonschema = th.PropertiesList(
         th.Property(
-            "auth_token",
+            "client_id",
+            th.StringType,
+            required=True,
+        ),
+        th.Property(
+            "client_secret",
             th.StringType,
             required=True,
             description="The token to authenticate against the API service"
         ),
-        th.Property(
-            "project_ids",
-            th.ArrayType(th.StringType),
-            required=True,
-            description="Project IDs to replicate"
-        ),
-        th.Property(
-            "start_date",
-            th.DateTimeType,
-            description="The earliest record date to sync"
-        ),
-        th.Property(
-            "api_url",
-            th.StringType,
-            default="https://api.mysample.com",
-            description="The url for the API service"
-        ),
+
     ).to_dict()
 
     def discover_streams(self) -> List[Stream]:
@@ -55,4 +44,4 @@ class Tappaypal(Tap):
 
 
 if __name__ == "__main__":
-    Tappaypal.cli()
+    TapPaypal.cli()
