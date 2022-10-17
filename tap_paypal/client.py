@@ -20,7 +20,7 @@ class PaypalStream(RESTStream):
 
     url_base = "https://api-m.paypal.com"
 
-    records_jsonpath = "$[*]"  # Or override `parse_response`.
+    records_jsonpath = "$.items.[*]"  # Or override `parse_response`.
     next_page_token_jsonpath = "$.next_page"  # Or override `get_next_page_token`.
 
     @property

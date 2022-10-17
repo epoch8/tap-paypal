@@ -7,14 +7,12 @@ from singer_sdk import typing as th  # JSON schema typing helpers
 # TODO: Import your custom stream types here:
 from tap_paypal.streams import (
     PaypalStream,
-    UsersStream,
-    GroupsStream,
+    InvoicesStream,
 )
 # TODO: Compile a list of custom stream types here
 #       OR rewrite discover_streams() below with your custom logic.
 STREAM_TYPES = [
-    UsersStream,
-    GroupsStream,
+    InvoicesStream,
 ]
 
 
@@ -34,6 +32,16 @@ class TapPaypal(Tap):
             th.StringType,
             required=True,
             description="The token to authenticate against the API service"
+        ),
+        th.Property(
+            "start_date",
+            th.StringType,
+            description="%Y-%m-%d"
+        ),
+        th.Property(
+            "end_date",
+            th.StringType,
+            description="%Y-%m-%d"
         ),
 
     ).to_dict()
