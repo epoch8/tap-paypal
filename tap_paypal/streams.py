@@ -73,6 +73,10 @@ class InvoicesStream(PaypalStream):
             "refund_amount",
             th.NumberType,
         ),
+        th.Property(
+            "total_invoice",
+            th.NumberType,
+        ),
     ).to_dict()
 
 
