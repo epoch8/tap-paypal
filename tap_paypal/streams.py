@@ -17,18 +17,62 @@ class InvoicesStream(PaypalStream):
     """Define custom stream."""
     name = "invoices"
     path = "/v2/invoicing/search-invoices"
-    primary_keys = ["id"]
+    primary_keys = ["id", ]
     # replication_key = "create_time"
     rest_method = "POST"
     schema = th.PropertiesList(
         th.Property(
-            "id",
+            "invoice_id",
             th.StringType,
         ),
-        # th.Property(
-        #     "create_time",
-        #     th.DateTimeType,
-        # )
+        th.Property(
+            "invoice_data",
+            th.DateType,
+        ),
+        th.Property(
+            "email",
+            th.StringType,
+        ),
+        th.Property(
+            "invoice_number",
+            th.IntegerType,
+        ),
+        th.Property(
+            "item_name",
+            th.StringType,
+        ),
+        th.Property(
+            "item_qty",
+            th.StringType,
+        ),
+        th.Property(
+            "item_total",
+            th.NumberType,
+        ),
+        th.Property(
+            "item_unit_price",
+            th.NumberType,
+        ),
+        th.Property(
+            "refund_amount",
+            th.NumberType,
+        ),
+        th.Property(
+            "name",
+            th.StringType,
+        ),
+        th.Property(
+            "status",
+            th.StringType,
+        ),
+        th.Property(
+            "terms_note",
+            th.StringType,
+        ),
+        th.Property(
+            "refund_amount",
+            th.NumberType,
+        ),
     ).to_dict()
 
 
@@ -89,13 +133,13 @@ class InvoicesStream(PaypalStream):
         invoice_info["invoice_number"] = invoice_data["detail"]["invoice_number"]
         invoice_info["item_name"] = ""
         invoice_info["item_qty"] = ""
-        invoice_info["item_unit_price"] = ""
+        invoice_info["item_unit_price"] = None
         try:
             invoice_info["item_total"] = invoice_data["amount"]["breakdown"]["item_total"]["value"]
         except KeyError:
-            invoice_info["item_total"] = ""
+            invoice_info["item_total"] = 0
             print("Bad invoice " + str(invoice_data["id"]))
-        invoice_info["refund_amount"] = ""
+        invoice_info["refund_amount"] = None
         invoice_info["total_invoice"] = invoice_data["amount"]["value"]
         invoice_info["terms_note"] = invoice_data["detail"].get("note", "")
 
@@ -106,18 +150,17 @@ class InvoicesStream(PaypalStream):
             new_invoice_info["item_qty"] = int(line_item["quantity"])
             new_invoice_info["item_unit_price"] = float(line_item["unit_amount"]["value"])
             new_invoice_info["item_total"] = new_invoice_info["item_qty"] * new_invoice_info["item_unit_price"]
-            new_invoice_info["total_invoice"] = ""
+            new_invoice_info["total_invoice"] = None
             rows.append(new_invoice_info)
 
         if "refunds" in invoice_data:
             new_invoice_info = invoice_info.copy()
             new_invoice_info["item_name"] = "refund"
             new_invoice_info["refund_amount"] = float(invoice_data["refunds"]["refund_amount"]["value"])
-            new_invoice_info["total_invoice"] = ""
+            new_invoice_info["total_invoice"] = None
             rows.append(new_invoice_info)
         return rows
 
     def post_process(self, row: dict, context: Optional[dict]) -> dict:
-        print(row)
         return row
     
