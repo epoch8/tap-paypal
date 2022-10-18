@@ -124,12 +124,10 @@ class InvoicesStream(PaypalStream):
             invoice_info["email"] = invoice_data["primary_recipients"][0]["billing_info"]["email_address"]
         except KeyError:
             invoice_info["email"] = ""
-            print("Bad invoice " + str(invoice_data["id"]))
         try:
             invoice_info["name"] = invoice_data["primary_recipients"][0]["billing_info"]["name"]["full_name"]
         except KeyError:
             invoice_info["name"] = ""
-            print("Bad invoice " + str(invoice_data["id"]))
         invoice_info["invoice_number"] = invoice_data["detail"]["invoice_number"]
         invoice_info["item_name"] = ""
         invoice_info["item_qty"] = ""
@@ -138,7 +136,6 @@ class InvoicesStream(PaypalStream):
             invoice_info["item_total"] = invoice_data["amount"]["breakdown"]["item_total"]["value"]
         except KeyError:
             invoice_info["item_total"] = 0
-            print("Bad invoice " + str(invoice_data["id"]))
         invoice_info["refund_amount"] = None
         invoice_info["total_invoice"] = invoice_data["amount"]["value"]
         invoice_info["terms_note"] = invoice_data["detail"].get("note", "")
