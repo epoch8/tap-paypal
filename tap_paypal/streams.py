@@ -17,7 +17,7 @@ class InvoicesStream(PaypalStream):
     """Define custom stream."""
     name = "invoices"
     path = "/v2/invoicing/search-invoices"
-    primary_keys = ["id", ]
+    # primary_keys = ["id", ]
     # replication_key = "create_time"
     rest_method = "POST"
     schema = th.PropertiesList(
@@ -26,7 +26,7 @@ class InvoicesStream(PaypalStream):
             th.StringType,
         ),
         th.Property(
-            "invoice_data",
+            "invoice_date",
             th.DateType,
         ),
         th.Property(
