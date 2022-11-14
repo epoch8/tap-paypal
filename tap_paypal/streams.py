@@ -39,7 +39,7 @@ class InvoicesStream(PaypalStream):
         ),
         th.Property(
             "invoice_number",
-            th.IntegerType,
+            th.StringType,
         ),
         th.Property(
             "item_name",
@@ -113,7 +113,7 @@ class InvoicesStream(PaypalStream):
             try:
                 flatten_and_detailed_records += self.prepare_invoice_rows(detailed_invoice)
             except:
-                raise
+                continue
         yield from flatten_and_detailed_records
 
 
