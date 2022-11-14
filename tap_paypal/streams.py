@@ -27,7 +27,7 @@ class InvoicesStream(PaypalStream):
         ),
         th.Property(
             "invoice_date",
-            th.DateType,
+            th.DateTimeType,
         ),
         th.Property(
             "updated_at",
