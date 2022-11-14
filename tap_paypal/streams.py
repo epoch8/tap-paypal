@@ -18,7 +18,7 @@ class InvoicesStream(PaypalStream):
     name = "invoices"
     path = "/v2/invoicing/search-invoices"
     primary_keys = ["invoice_id", "item_name"]
-    replication_key = "invoice_date"
+    replication_key = "updated_at"
     rest_method = "POST"
     schema = th.PropertiesList(
         th.Property(
@@ -28,6 +28,10 @@ class InvoicesStream(PaypalStream):
         th.Property(
             "invoice_date",
             th.DateType,
+        ),
+        th.Property(
+            "updated_at",
+            th.DateTimeType
         ),
         th.Property(
             "email",
@@ -109,7 +113,7 @@ class InvoicesStream(PaypalStream):
             try:
                 flatten_and_detailed_records += self.prepare_invoice_rows(detailed_invoice)
             except:
-                continue
+                raise
         yield from flatten_and_detailed_records
 
 
@@ -124,6 +128,7 @@ class InvoicesStream(PaypalStream):
         invoice_info["invoice_date"] = invoice_data["detail"]["invoice_date"]
         invoice_info["invoice_id"] = invoice_data["id"]
         invoice_info["status"] = invoice_data["status"]
+        invoice_info["updated_at"] = invoice_data['detail']["metadata"]["last_update_time"]
         try:
             invoice_info["email"] = invoice_data["primary_recipients"][0]["billing_info"]["email_address"]
         except KeyError:
