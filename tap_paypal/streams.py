@@ -51,11 +51,11 @@ class InvoicesStream(PaypalStream):
         ),
         th.Property(
             "item_total",
-            th.StringType,
+            th.NumberType,
         ),
         th.Property(
             "item_unit_price",
-            th.StringType,
+            th.NumberType,
         ),
         th.Property(
             "refund_amount",
@@ -142,11 +142,11 @@ class InvoicesStream(PaypalStream):
         invoice_info["invoice_number"] = invoice_data["detail"]["invoice_number"]
         invoice_info["item_name"] = ""
         invoice_info["item_qty"] = 0
-        invoice_info["item_unit_price"] = ""
+        invoice_info["item_unit_price"] = 0.0
         try:
-            invoice_info["item_total"] = invoice_data["amount"]["breakdown"]["item_total"]["value"]
+            invoice_info["item_total"] = float(invoice_data["amount"]["breakdown"]["item_total"]["value"])
         except KeyError:
-            invoice_info["item_total"] = ""
+            invoice_info["item_total"] = 0.0
             self.logger.warning("Bad invoice " + str(invoice_data["id"]))
         invoice_info["refund_amount"] = ""
         invoice_info["total_invoice"] = invoice_data["amount"]["value"]
