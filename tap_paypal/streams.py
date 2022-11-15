@@ -7,7 +7,7 @@ from singer_sdk import typing as th  # JSON Schema typing helpers
 from singer_sdk.helpers.jsonpath import extract_jsonpath
 from singer_sdk.helpers._util import utc_now
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from tap_paypal.client import PaypalStream
 from pendulum import parser
 
@@ -83,6 +83,14 @@ class InvoicesStream(PaypalStream):
         ),
     ).to_dict()
 
+    def _get_start_date(self, context: Optional[dict]) -> str:
+        state = self.get_context_state(context)
+        state_bookmark = state.get("replication_key_value") or self.config["start_date"]
+
+        parsed = parser.parse(state_bookmark)
+        # state bookmarks need to be reformatted for API requests
+        return datetime.strftime(parsed, "%Y-%m-%d")
+
 
     def prepare_request_payload(
         self, context: Optional[dict], next_page_token: Optional[Any]
@@ -91,7 +99,8 @@ class InvoicesStream(PaypalStream):
 
         By default, no payload will be sent (return None).
         """
-        start = self.config.get("start_date", (utc_now() - timedelta(days=1)).strftime('%Y-%m-%d'))
+        
+        start = self._get_start_date(context)
         end = self.config.get("end_date", utc_now().strftime('%Y-%m-%d'))
         self.logger.info(f"Getting data for period: {start} - {end}")
         data = {
