@@ -47,7 +47,7 @@ class InvoicesStream(PaypalStream):
         ),
         th.Property(
             "item_qty",
-            th.StringType,
+            th.IntegerType,
         ),
         th.Property(
             "item_total",
@@ -141,7 +141,7 @@ class InvoicesStream(PaypalStream):
             self.logger.warning("Bad invoice " + str(invoice_data["id"]))
         invoice_info["invoice_number"] = invoice_data["detail"]["invoice_number"]
         invoice_info["item_name"] = ""
-        invoice_info["item_qty"] = ""
+        invoice_info["item_qty"] = 0
         invoice_info["item_unit_price"] = ""
         try:
             invoice_info["item_total"] = invoice_data["amount"]["breakdown"]["item_total"]["value"]
