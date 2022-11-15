@@ -51,15 +51,15 @@ class InvoicesStream(PaypalStream):
         ),
         th.Property(
             "item_total",
-            th.NumberType,
+            th.StringType,
         ),
         th.Property(
             "item_unit_price",
-            th.NumberType,
+            th.StringType,
         ),
         th.Property(
             "refund_amount",
-            th.NumberType,
+            th.StringType,
         ),
         th.Property(
             "name",
@@ -75,11 +75,11 @@ class InvoicesStream(PaypalStream):
         ),
         th.Property(
             "refund_amount",
-            th.NumberType,
+            th.StringType,
         ),
         th.Property(
             "total_invoice",
-            th.NumberType,
+            th.StringType,
         ),
     ).to_dict()
 
