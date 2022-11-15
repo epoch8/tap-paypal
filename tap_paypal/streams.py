@@ -93,6 +93,7 @@ class InvoicesStream(PaypalStream):
         """
         start = self.config.get("start_date", (utc_now() - timedelta(days=1)).strftime('%Y-%m-%d'))
         end = self.config.get("end_date", utc_now().strftime('%Y-%m-%d'))
+        self.logger.info(f"Getting data for period: {start} - {end}")
         data = {
             "invoice_date_range": {
                 "start": start,
