@@ -121,8 +121,8 @@ class InvoicesStream(PaypalStream):
         r = requests.get(detail_url, headers={"Authorization": "Bearer " + self.authenticator.access_token})
         return r.json()
 
-    @staticmethod
-    def prepare_invoice_rows(invoice_data):
+
+    def prepare_invoice_rows(self, invoice_data):
         rows = []
         invoice_info = {}
         invoice_info["invoice_date"] = invoice_data["detail"]["invoice_date"]
@@ -133,19 +133,22 @@ class InvoicesStream(PaypalStream):
             invoice_info["email"] = invoice_data["primary_recipients"][0]["billing_info"]["email_address"]
         except KeyError:
             invoice_info["email"] = ""
+            self.logger.warning("Bad invoice " + str(invoice_data["id"]))
         try:
             invoice_info["name"] = invoice_data["primary_recipients"][0]["billing_info"]["name"]["full_name"]
         except KeyError:
             invoice_info["name"] = ""
+            self.logger.warning("Bad invoice " + str(invoice_data["id"]))
         invoice_info["invoice_number"] = invoice_data["detail"]["invoice_number"]
         invoice_info["item_name"] = ""
         invoice_info["item_qty"] = ""
-        invoice_info["item_unit_price"] = None
+        invoice_info["item_unit_price"] = ""
         try:
             invoice_info["item_total"] = invoice_data["amount"]["breakdown"]["item_total"]["value"]
         except KeyError:
-            invoice_info["item_total"] = 0
-        invoice_info["refund_amount"] = None
+            invoice_info["item_total"] = ""
+            self.logger.warning("Bad invoice " + str(invoice_data["id"]))
+        invoice_info["refund_amount"] = ""
         invoice_info["total_invoice"] = invoice_data["amount"]["value"]
         invoice_info["terms_note"] = invoice_data["detail"].get("note", "")
 
@@ -156,15 +159,16 @@ class InvoicesStream(PaypalStream):
             new_invoice_info["item_qty"] = int(line_item["quantity"])
             new_invoice_info["item_unit_price"] = float(line_item["unit_amount"]["value"])
             new_invoice_info["item_total"] = new_invoice_info["item_qty"] * new_invoice_info["item_unit_price"]
-            new_invoice_info["total_invoice"] = None
+            new_invoice_info["total_invoice"] = ""
             rows.append(new_invoice_info)
 
         if "refunds" in invoice_data:
             new_invoice_info = invoice_info.copy()
             new_invoice_info["item_name"] = "refund"
             new_invoice_info["refund_amount"] = float(invoice_data["refunds"]["refund_amount"]["value"])
-            new_invoice_info["total_invoice"] = None
+            new_invoice_info["total_invoice"] = ""
             rows.append(new_invoice_info)
+
         return rows
 
     def post_process(self, row: dict, context: Optional[dict]) -> dict:
