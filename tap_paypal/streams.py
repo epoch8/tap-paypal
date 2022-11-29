@@ -59,7 +59,7 @@ class InvoicesStream(PaypalStream):
         ),
         th.Property(
             "refund_amount",
-            th.StringType,
+            th.NumberType,
         ),
         th.Property(
             "name",
@@ -74,12 +74,8 @@ class InvoicesStream(PaypalStream):
             th.StringType,
         ),
         th.Property(
-            "refund_amount",
-            th.StringType,
-        ),
-        th.Property(
             "total_invoice",
-            th.StringType,
+            th.NumberType,
         ),
     ).to_dict()
 
@@ -158,7 +154,7 @@ class InvoicesStream(PaypalStream):
         except KeyError:
             invoice_info["item_total"] = 0.0
             self.logger.warning("Bad invoice " + str(invoice_data["id"]))
-        invoice_info["refund_amount"] = ""
+        invoice_info["refund_amount"] = 0.0
         invoice_info["total_invoice"] = invoice_data["amount"]["value"]
         invoice_info["terms_note"] = invoice_data["detail"].get("note", "")
 
@@ -176,7 +172,7 @@ class InvoicesStream(PaypalStream):
             new_invoice_info = invoice_info.copy()
             new_invoice_info["item_name"] = "refund"
             new_invoice_info["refund_amount"] = float(invoice_data["refunds"]["refund_amount"]["value"])
-            new_invoice_info["total_invoice"] = ""
+            new_invoice_info["total_invoice"] = 0.0
             rows.append(new_invoice_info)
 
         return rows
