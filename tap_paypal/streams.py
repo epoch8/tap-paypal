@@ -165,7 +165,7 @@ class InvoicesStream(PaypalStream):
             new_invoice_info["item_qty"] = int(line_item["quantity"])
             new_invoice_info["item_unit_price"] = float(line_item["unit_amount"]["value"])
             new_invoice_info["item_total"] = new_invoice_info["item_qty"] * new_invoice_info["item_unit_price"]
-            new_invoice_info["total_invoice"] = ""
+            new_invoice_info["total_invoice"] = 0.0
             rows.append(new_invoice_info)
 
         if "refunds" in invoice_data:
