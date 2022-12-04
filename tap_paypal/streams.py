@@ -155,7 +155,10 @@ class InvoicesStream(PaypalStream):
             invoice_info["item_total"] = 0.0
             self.logger.warning("Bad invoice " + str(invoice_data["id"]))
         invoice_info["refund_amount"] = 0.0
-        invoice_info["total_invoice"] = invoice_data["amount"]["value"]
+        try:
+            invoice_info["total_invoice"] = float(invoice_data["amount"]["value"])
+        except:
+            invoice_info["total_invoice"] = 0.0
         invoice_info["terms_note"] = invoice_data["detail"].get("note", "")
 
         rows.append(invoice_info)
