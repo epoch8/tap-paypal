@@ -115,7 +115,10 @@ class InvoicesStream(PaypalStream):
         filtered_record = [record for record in records if record['status'] != "DRAFT"]
         flatten_and_detailed_records = []
         for record in filtered_record:
-            detailed_invoice = self.get_invoice_detail(record["links"][0]["href"])
+            try:
+                detailed_invoice = self.get_invoice_detail(record["links"][0]["href"])
+            except KeyError:
+                continue
             try:
                 flatten_and_detailed_records += self.prepare_invoice_rows(detailed_invoice)
             except:
